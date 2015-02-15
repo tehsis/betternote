@@ -1,0 +1,23 @@
+{
+  "name": "notes-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "good": "^5.1.1",
+    "good-console": "^4.1.0",
+    "hapi": "^8.1.0",
+    "hapi-swagger": "^0.6.3",
+    "joi": "^5.1.0",
+    "mongoose": "^3.8.23"
+  },
+  "devDependencies": {
+    "6to5": "^3.6.5",
+    "chai": "^2.0.0"
+  }
+}
