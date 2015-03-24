@@ -34,8 +34,8 @@ module.exports = {
   post: {
     handler: (request, reply) => {
       var note = new Notes({
-        message: request.payload.message,
-        done: request.payload.done
+        message: request.payload.note.message,
+        done: request.payload.note.done
       });
 
       note.save((err, notes) => {
@@ -44,11 +44,21 @@ module.exports = {
     },
     validate: {
       payload: {
-        message: Joi.string().required().max(140).description('The note\'s message'),
-        done: Joi.boolean().description('Determines if the note has been resolved.')
+        note: {
+          message: Joi.string().required().max(140).description('The note\'s message'),
+          done: Joi.boolean().description('Determines if the note has been resolved.'),
+          slug: Joi.not().required()
+        }
       }
     },
     description: 'Saves a new note',
     tags: ['api']
+  },
+  deleteBySlug: {
+    handler: (request, reply) => {
+      Notes.findOneAndRemove({slug: request.params.slug}, (err) => {
+        reply(200);
+      })
+    }
   }
 };

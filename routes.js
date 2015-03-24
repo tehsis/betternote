@@ -17,6 +17,11 @@ module.exports = [
     config: notes.post
   },
   {
+    method: 'DELETE',
+    path: '/notes/{slug}',
+    config: notes.deleteBySlug
+  },
+  {
     method: 'GET',
     path: '/',
     handler: function(request, reply) {

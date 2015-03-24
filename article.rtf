@@ -1,0 +1,165 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1344\cocoasubrtf720
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8180\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 de 0 a prod\
+\
+Antes de empezar, voy a aclarar que esto no intenta ser un \'93tutorial\'94 ni un \'93curso de programaci\'f3n\'94. Simplemente un vistazo r\'e1pido a una serie de herramientas, algunas de las cuales iremos descubriendo juntos.\
+El objetivo, es abrir puntas  y no m\'e1s que eso. Cualquiera de las tecnolog\'edas, pr\'e1cticas o m\'e9todos utilizados bien podr\'eda reemplazarse por cualquier otro (y en algunos casos, seguramente deber\'edan reemplazarse)\
+\
+Vamos a comenzar.\
+\
+Instalando Node\
+\
+Podemos instalar nodes de muchas formas posible, seg\'fan el sistema operativo que usemos.\
+Si bien podemos usar administradores de paquetes como apt-get en Ubuntu o Homebrew en OSX, para este articulo vamos a instalarlo a partir del c\'f3digo fuente.\
+\
+Prerequisitos\
+\
+- git\
+- make\
+- gcc\
+- [BUSCAR DEPS]\
+\
+1. $git clone [URL A NODE]\
+2. $make\
+3. #make install\
+\
+comprobamos que tenemos instalado node mediante\
+\
+$node -v\
+v0.12.0\
+\
+Vamos a comenzar con nuestro proyecto creando un package.json. Este archivo, b\'e1sicamente, incluir\'e1 toda la informaci\'f3n relacionado con nuestra API de notas. Principalmente.\
+\
+[6to5]\
+\
+[ARMADO DE PACKAGE JSON]\
+\
+[INTRODUCCION A HAPI]\
+\
+Documentando nuestra API\
+\
+Para documentar la API que estamos creando, vamos a usar un plugin para Hapi llamado Swagger.\
+El mismo nos creara una ruta /documentation en nuestro host con referencias a la api que acabamos de crear.\
+Para usarlo, primero tenemos que registrar el plugin con Hapi.\
+\
+server.register(\{\
+  register: require('hapi-swagger'),\
+  options: \{\
+    basePath: 'http://localhost:3000',\
+    apiVersion: '0.1'\
+  \}\
+\}, (err) => \{\
+  if (err) console.err('Swagger not loaded');\
+\});\
+\
+Luego, simplemente debemos configurar nuestras rutas, agregando una descripci\'f3n y opcionalmente, notas, para que Swagger nos arme, automagicamente una hermosa documentaci\'f3n.\
+\
+Persistiendo datos\
+\
+[Introducci\'f3n a MongoDB]\
+\
+[Creando rutas, con ejemplos de slugger]\
+\
+[validando con joi]\
+Hapi nos permite realizar validaciones sobre nuestras rutas a trav\'e9s de Joi, un modulo para crear esquemas en nuestros objetos JS.\
+Para usarlo, lo instalamos mediante npm \
+\
+$npm install \'97save join\
+\
+y agregamos, en la configuraci\'f3n de las rutas, un atributo \'93validate\'94, de la siguiente manera:\
+\
+    validate: \{\
+      params: \{\
+        slug: Joi.string().min(3)  \
+      \}\
+    \},\
+\
+En esta caso, estamos validando que el parametro slug, sea de tipo string y tenga, al menos, 3 caracteres.\
+Y para el caso de parametros pasados por query:\
+\
+      query: \{\
+        message: Joi.string().required().max(140),\
+        done: Joi.boolean()\
+      \}\
+    \}\
+\
+\
+\'bfComo probamos esto? Muy sencillo, gracias a Swagger, podemos ir a \'93http://localhost:3000/documentation\'94 y vamos a ver que en las rutas donde definimos validaciones, ahora sera posible ingresar par\'e1metros que permitan probarlos. Incluso con <input />\'92s acordes.\
+\
+Tests\
+\
+Por \'faltimo, vamos a crear tests para lo que acabamos de hacer.\
+No voy a ahondar mucho respecto a pr\'e1cticas como TDD, BDD,  etc. Si no, como el resto del art\'edculo, nos vamos a enfocar en las herramientas.\
+\
+Para este caso, vamos a utilizar un combo que se lleva muy bien entre s\'ed: mocha y chai.\
+Realmente, me interesa destacar que Hapi tiene un soporte /nativo/ para tests muy interesante y siendo exactos, no necesitamos mucho m\'e1s para realizarlos  e incluso podemos usar, directamente, el modulo \'91assert\'92 de node. Pero usar mocha nos permite: organizar mejor nuestros tests, manejar callbacks async y generar salidas (reportes) en distintos formatos, lo cual nos vendr\'e1 bien m\'e1s adelante.\
+\
+Mocha nos permite agrupar tests de muchas formas y generar reportes en distintos formatos. Mientras que chai es una librer\'eda de /assertions/ que nos permitir\'e1 escribirlos en un lenguaje muy amigable.\
+\
+Empezamos instalando mocha de forma global:\
+\
+#npm install -g mocha\
+\
+Y chai en nuestro propio proyecto:\
+\
+$npm install \'97save-dev chai\
+\
+B\'e1sicamente, un test escrito mediante mocha y chai ser\'e1 similar a lo siguiente:\
+\
+var chai = require(\'91chai\'92);\
+\
+var expect = chai.expect;\
+\
+beforeEach(function() \{\
+  // something to be executed before each test \
+\});\
+\
+afterEach(function() \{\
+  // something to be executed after each test\
+\});\
+\
+describe(\'91The notes server\'92, function() \{\
+  it(\'91should retrieve all the notes\'92, function() \{\
+    //\'85\
+    expect(something).to.equals(value);\
+  \});\
+  it(\'91should retrieve a specific note using its slug\'92, function() \{ \'85 \});\
+  it(\'91should save a note\'92, function() \{ \'85 \});\
+\});\
+\
+Lo interesante de mocha, es que creo que no necesita mucha explicaci\'f3n sobre lo que hace cada bloque. Las funciones dentro de beforeEach/afterEach se ejecutaran antes y despu\'e9s de cada test respectivamente. Ser\'e1 lo que usemos para \'93limpiar\'94 nuestra base de datos y asegurarnos que cada test se ejecute de forma independiente. Describe(text, fn) nos permite definir una suite con una breve descripci\'f3n de lo que vamos a probar y cada it(text, fn) contendr\'e1 el test que vamos a ejecutar.\
+\
+En nuestro caso vamos a hacer lo siguiente. Antes de correr cada test (beforeEach) vamos a conectarnos a la base de datos. Despu\'e9s de de cada test (afterEach) vamos a limpiarla, cada test se encargara de crear \'93a mano\'94 los datos que necesite, de esta forma, nos aseguramos de testar cada funcionalidad por separado, lo cual nos puede ser de mucha utilidad ante la aparici\'f3n de bugs.\
+\
+Para los tests, vamos a utilizar el metodo \'91inject\'92 del objeto server de Hapi, el cual nos permite \'91inyectar\'92 o simular requests a nuestro server de forma sencilla. \
+Por ejemplo, para el caso de guardar una nota:\
+\
+server.inject(\{\
+  method: \'91POST\'92,\
+  payload: JSON.stringify(\{message: \'91this is a test\'92\})\
+\}, function (res) \{ \
+  expect(res.result.notes[0].message).to.equals(\'91this is a test\'92);\
+\} );\
+\
+El test completo quedaria: \
+\
+[SNIPPET DEL TEST]\
+\
+Deployar y compartir\
+\
+Hasta el momento, es todo rosas. Tenemos nuestro servidor, base de datos, y tests corriendo a la perfecci\'f3n\'85 en nuestra m\'e1quina.\
+Ahora quiero poder llevarlo a producci\'f3n y que lo usen miles de personas.\
+Ademas, quiero compartirlo con un amigo para que pueda probarlo.\
+En ambos casos, vamos a necesitar /replicar/ lo que hicimos de forma local: instalar  node, instalar una base de datos,  instalar mocha y hasta ahora hemos usado configuraciones por defecto, seguramente en producci\'f3n necesitemos tener m\'e1s instancias de node y/o mongodb para poder \'91escalar\'92.\
+Antes de entrar en detalles sobre esto \'faltimo, vamos a atacar el problema com\'fan para ambos casos, preparar el entorno.\
+En principio, podemos escribir un archivo README con cada uno de los pasos necesarios. Pero, no instalamos Node de la misma forma en Windows que en Ubuntu, o en OSX, o en otras distribuciones Linux. Ademas, los humanos somos propensos a equivocarnos y si la tarea es repetitiva seguramente tendemos a olvidarnos algunos pasos.\
+Por estas y algunas otras razones, vamos a intentar solucionar este problema mediante alguna/s herramientas.\
+\
+Para compartir el entorno, vamos a utilizar /Vagrant/. Un \'91administrador\'92 de  maquinas virtuales que nos permitira mediante un simple comando instalar un sistema operativo y /provisionarlo/ dejando nuestra aplicaci\'f3n lista para usar.\
+Por otro lado, para manejar las configuraciones de cada entorno, vamos a utilizar Puppet.\
+\
+[Explicacion de instalaci\'f3n de Vagrant y Puppet].}
