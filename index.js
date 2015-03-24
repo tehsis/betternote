@@ -1,4 +1,4 @@
-require('6to5/register');
+require('babel/register');
 
 var Good = require('good');
 var mongoose = require('mongoose');

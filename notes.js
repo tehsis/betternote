@@ -54,6 +54,17 @@ module.exports = {
     description: 'Saves a new note',
     tags: ['api']
   },
+  update: {
+    handler: (request, reply) => {
+      let slug = request.params.slug;
+      let note = request.payload.note;
+      note.slug = slug;
+      Notes.findOneAndUpdate({slug: slug}, note, (err, note) => {
+        if (err) reply(500, err);
+        else reply(200, note);        
+      });
+    }
+  },
   deleteBySlug: {
     handler: (request, reply) => {
       Notes.findOneAndRemove({slug: request.params.slug}, (err) => {

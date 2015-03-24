@@ -22,6 +22,11 @@ module.exports = [
     config: notes.deleteBySlug
   },
   {
+    method: 'PUT',
+    path: '/notes/{slug}',
+    config: notes.update
+  },
+  {
     method: 'GET',
     path: '/',
     handler: function(request, reply) {
